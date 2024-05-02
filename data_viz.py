@@ -6,7 +6,7 @@ from folium.plugins import MarkerCluster
 
 # Chargement du fichier de données traitées
 df_viz = pd.read_csv("data/donnees_traitees.csv")
-df_pred = pd.read_csv("data/predictions.csv")
+df_pred = pd.read_csv("data/predictions.csv",low_memory=False)
 
 # Titre de l'application
 st.title("Analyse des points de charge pour véhicules électriques")
@@ -135,3 +135,35 @@ for idx, row_pred in df_pred_filtered.iterrows():
 
 # Afficher la carte Folium avec les prédictions dans Streamlit
 folium_static(m_pred)
+
+#####################################################################
+
+
+## Liste des colonnes à analyser pour les filtres
+prediction_columns = [
+    'implantation_station',
+    'code_insee_commune',
+    'puissance_nominale',
+    'date_maj',
+    'consolidated_longitude',
+    'consolidated_latitude',
+    'code_departement',
+    'nb_vp_rechargeables_el'
+]
+
+# Titre de la section des filtres et des inputs
+st.title("Filtres pour les prédictions")
+
+# Générer un input pour chaque colonne de prédiction
+for column in prediction_columns:
+    input_value = st.text_input(f"Entrez une valeur pour '{column}':")
+
+    # Filtrer les données en fonction de la valeur entrée
+    if input_value:
+        filtered_prediction = df_pred[df_pred[column] == input_value]
+
+        # Afficher la prédiction correspondante si des données sont trouvées
+        if not filtered_prediction.empty:
+            st.write(f"Prédiction pour '{column}' = {input_value} : {filtered_prediction['Prediction'].iloc[0]}")
+        else:
+            st.write(f"Aucune prédiction trouvée pour '{column}' = {input_value}")
